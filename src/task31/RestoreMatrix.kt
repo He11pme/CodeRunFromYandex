@@ -5,37 +5,38 @@ import java.io.BufferedWriter
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 
-// Скорость не превышает 0,17 сек, память - 22 МБ.
-fun main(args: Array<String>) {
+// Скорость не превышает 0,15 сек, память - 20.5 МБ.
+fun main(args: Array<String> ) {
     val reader = BufferedReader(InputStreamReader(System.`in`))
     val writer = BufferedWriter(OutputStreamWriter(System.out))
 
     val size = reader.readLine().toInt()
-    val luckyNumber = mutableSetOf<Int>()
+    val used = BooleanArray(size * size + 1)
+    val matrix = Array(size) {IntArray(size)}
 
-    val matrix = Array(size) {
-        reader.readLine().split(" ").map {
-            it.toInt().let { number ->
-                if (number != 0) luckyNumber.add(number)
-                number
-            }
+    repeat(size) { i ->
+        val parts = reader.readLine().split(' ')
+        for (j in 0 until size) {
+            val number = parts[j].toInt()
+            matrix[i][j] = number
+            if (number != 0) used[number] = true
         }
     }
 
-    var number = 0
-    matrix.forEach { line ->
-        val strLine = StringBuilder()
-        line.forEach {
-            if (it == 0) {
-                do {
-                    number++
-                } while (luckyNumber.contains(number))
-                strLine.append(number)
-            } else strLine.append(it)
-            strLine.append(' ')
+    var nextFree = 1
+    val sb = StringBuilder()
+    for (i in 0 until size) {
+        sb.setLength(0)
+        for (j in 0 until size) {
+            if (matrix[i][j] == 0) {
+                while (used[nextFree]) nextFree++
+                matrix[i][j] = nextFree
+                used[nextFree] = true
+            }
+            sb.append(matrix[i][j]).append(' ')
         }
-        strLine.setLength(strLine.length - 1)
-        writer.write(strLine.toString())
+        sb.setLength(sb.length - 1)
+        writer.write(sb.toString())
         writer.newLine()
     }
 
